@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis Tableros{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Mis Tableros</h2>
+    <a href="{% url 'board_create' %}" class="btn btn-success">+ Nuevo Tablero</a>
+</div>
+
+<div class="row">
+    {% for board in boards %}
+    <div class="col-md-4 mb-3">
+        <div class="card board-card">
+            <div class="card-body">
+                <h5 class="card-title">{{ board.name }}</h5>
+                <p class="card-text text-muted">{{ board.description|truncatechars:100 }}</p>
+                <div class="d-flex justify-content-between">
+                    <a href="{% url 'board_detail' board.pk %}" class="btn btn-primary btn-sm">Abrir</a>
+                    {% if board.owner == user %}
+                    <div>
+                        <a href="{% url 'board_edit' board.pk %}" class="btn btn-outline-secondary btn-sm">Editar</a>
+                        <a href="{% url 'board_delete' board.pk %}" class="btn btn-outline-danger btn-sm">Eliminar</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer text-muted">
+                <small>Creado por {{ board.owner.username }}</small>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <p class="text-muted">No tienes tableros todavía. ¡Crea uno!</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Miembros - {{ board.name }}{% endblock %}
+
+{% block content %}
+<h2>Miembros de "{{ board.name }}"</h2>
+
+<div class="row">
+    <div class="col-md-6">
+        <h5>Propietario</h5>
+        <p>{{ board.owner.username }}</p>
+
+        <h5>Miembros</h5>
+        <ul class="list-group mb-3">
+            {% for member in members %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ member.username }}
+                <a href="{% url 'remove_member' board.pk member.pk %}" class="btn btn-sm btn-outline-danger">Quitar</a>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">No hay miembros adicionales</li>
+            {% endfor %}
+        </ul>
+
+        <h5>Añadir miembro</h5>
+        <form method="post">
+            {% csrf_token %}
+            <div class="input-group">
+                <input type="text" name="username" class="form-control" placeholder="Nombre de usuario">
+                <button type="submit" class="btn btn-primary">Añadir</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<a href="{% url 'board_detail' board.pk %}" class="btn btn-secondary mt-3">Volver al tablero</a>
+{% endblock %}
