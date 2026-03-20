@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ task.title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between">
+                <h4>{{ task.title }}</h4>
+                <span class="badge bg-{{ task.priority }}">{{ task.get_priority_display }}</span>
+            </div>
+            <div class="card-body">
+                <p><strong>Lista:</strong> {{ task.task_list.name }}</p>
+                <p><strong>Descripción:</strong> {{ task.description|default:"Sin descripción" }}</p>
+                <p><strong>Asignado a:</strong> {{ task.assigned_to.username|default:"Sin asignar" }}</p>
+                <p><strong>Fecha límite:</strong> {{ task.due_date|default:"Sin fecha" }}</p>
+                {% if task.labels.exists %}
+                <p><strong>Etiquetas:</strong>
+                    {% for label in task.labels.all %}
+                    <span class="badge" style="background-color: {{ label.color }}">{{ label.name }}</span>
+                    {% endfor %}
+                </p>
+                {% endif %}
+                <p><strong>Creada:</strong> {{ task.created_at }}</p>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'task_edit' task.pk %}" class="btn btn-primary btn-sm">Editar</a>
+                <form method="post" action="{% url 'task_delete' task.pk %}" style="display:inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Eliminar?')">Eliminar</button>
+                </form>
+                <button class="btn btn-info btn-sm" onclick="notifyTask({{ task.pk }})">Notificar por email</button>
+                <a href="{% url 'board_detail' board.pk %}" class="btn btn-secondary btn-sm">Volver</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function notifyTask(taskId) {
+    fetch(`/task/${taskId}/notify/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status) {
+            alert('Notificación enviada');
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(() => alert('Error al enviar'));
+}
+</script>
+{% endblock %}

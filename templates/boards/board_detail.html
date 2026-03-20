@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ board.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>{{ board.name }}</h2>
+    <div>
+        {% if board.owner == user %}
+        <a href="{% url 'board_members' board.pk %}" class="btn btn-outline-info btn-sm">Miembros</a>
+        <a href="{% url 'label_create' board.pk %}" class="btn btn-outline-warning btn-sm">+ Etiqueta</a>
+        {% endif %}
+        <a href="{% url 'tasklist_create' board.pk %}" class="btn btn-outline-primary btn-sm">+ Lista</a>
+        <div class="btn-group">
+            <a href="{% url 'export_csv' board.pk %}" class="btn btn-outline-success btn-sm">CSV</a>
+            <a href="{% url 'export_json' board.pk %}" class="btn btn-outline-success btn-sm">JSON</a>
+        </div>
+        <a href="{% url 'board_list' %}" class="btn btn-secondary btn-sm">Volver</a>
+    </div>
+</div>
+
+{% if board.labels.exists %}
+<div class="mb-3">
+    {% for label in board.labels.all %}
+    <span class="badge me-1" style="background-color: {{ label.color }}">
+        {{ label.name }}
+        {% if board.owner == user %}
+        <form method="post" action="{% url 'label_delete' label.pk %}" style="display:inline">
+            {% csrf_token %}
+            <button type="submit" class="btn-close btn-close-white" style="font-size: 0.5em;" aria-label="Eliminar"></button>
+        </form>
+        {% endif %}
+    </span>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="board-container d-flex gap-3 overflow-auto pb-3">
+    {% for tl in task_lists %}
+    <div class="task-list-column" data-list-id="{{ tl.pk }}">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">{{ tl.name }} <span class="badge bg-secondary">{{ tl.tasks.count }}</span></h6>
+                <div>
+                    <a href="{% url 'task_create' tl.pk %}" class="btn btn-sm btn-outline-primary">+</a>
+                    {% if board.owner == user %}
+                    <form method="post" action="{% url 'tasklist_delete' tl.pk %}" style="display:inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Eliminar esta lista?')">x</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body task-drop-zone" data-list-id="{{ tl.pk }}">
+                {% for task in tl.tasks.all %}
+                <div class="card task-card mb-2" draggable="true" data-task-id="{{ task.pk }}">
+                    <div class="card-body p-2">
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none">
+                                <strong>{{ task.title }}</strong>
+                            </a>
+                            <span class="badge bg-{{ task.priority }}">{{ task.get_priority_display }}</span>
+                        </div>
+                        {% if task.labels.exists %}
+                        <div class="mt-1">
+                            {% for label in task.labels.all %}
+                            <span class="badge" style="background-color: {{ label.color }}; font-size: 0.7em;">{{ label.name }}</span>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        {% if task.assigned_to %}
+                        <small class="text-muted">{{ task.assigned_to.username }}</small>
+                        {% endif %}
+                        {% if task.due_date %}
+                        <small class="text-muted d-block">{{ task.due_date }}</small>
+                        {% endif %}
+                        <div class="mt-1">
+                            <a href="{% url 'task_edit' task.pk %}" class="btn btn-outline-secondary btn-sm" style="font-size:0.7em">Editar</a>
+                            <form method="post" action="{% url 'task_delete' task.pk %}" style="display:inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm" style="font-size:0.7em" onclick="return confirm('¿Eliminar?')">Borrar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dragdrop.js' %}"></script>
+{% endblock %}
