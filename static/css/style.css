@@ -1,0 +1,64 @@
+body {
+    background-color: #f5f5f5;
+}
+
+.board-card {
+    transition: transform 0.2s;
+}
+
+.board-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.task-list-column {
+    min-width: 300px;
+    max-width: 300px;
+}
+
+.task-list-column .card {
+    background-color: #ebecf0;
+    min-height: 100px;
+}
+
+.task-drop-zone {
+    min-height: 50px;
+}
+
+.task-card {
+    cursor: grab;
+    background: white;
+}
+
+.task-card:active {
+    cursor: grabbing;
+}
+
+.task-card.dragging {
+    opacity: 0.5;
+    transform: rotate(3deg);
+}
+
+.task-drop-zone.drag-over {
+    background-color: #d4edda;
+    border: 2px dashed #28a745;
+    border-radius: 4px;
+}
+
+/* Prioridades */
+.badge.bg-low {
+    background-color: #28a745 !important;
+}
+
+.badge.bg-medium {
+    background-color: #ffc107 !important;
+    color: #333;
+}
+
+.badge.bg-high {
+    background-color: #dc3545 !important;
+}
+
+.board-container {
+    padding-bottom: 20px;
+}
