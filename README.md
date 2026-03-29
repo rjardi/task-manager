@@ -2,6 +2,8 @@
 
 Sistema de gestión de tareas tipo Trello desarrollado con Django.
 
+**Demo en vivo:** https://rjardi.pythonanywhere.com
+
 ## Funcionalidades
 
 - Registro, login y logout de usuarios
