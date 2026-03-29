@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import Q
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Board, TaskList, Task, Label
@@ -48,7 +49,7 @@ class TaskForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if board:
             self.fields['assigned_to'].queryset = User.objects.filter(
-                models.Q(id=board.owner.id) | models.Q(id__in=board.members.all())
+                Q(id=board.owner.id) | Q(id__in=board.members.all())
             ).distinct()
             self.fields['labels'].queryset = Label.objects.filter(board=board)
 

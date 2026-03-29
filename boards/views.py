@@ -89,14 +89,23 @@ def board_delete(request, pk):
 def board_members(request, pk):
     board = get_object_or_404(Board, pk=pk, owner=request.user)
     from django.contrib.auth.models import User
+    from django.contrib import messages
     if request.method == 'POST':
-        username = request.POST.get('username', '')
-        try:
-            user = User.objects.get(username=username)
-            if user != board.owner:
-                board.members.add(user)
-        except User.DoesNotExist:
-            pass
+        username = request.POST.get('username', '').strip()
+        if not username:
+            messages.error(request, 'Introduce un nombre de usuario')
+        else:
+            try:
+                user = User.objects.get(username=username)
+                if user == board.owner:
+                    messages.warning(request, 'No puedes añadirte a ti mismo, ya eres el propietario')
+                elif user in board.members.all():
+                    messages.info(request, f'{username} ya es miembro del tablero')
+                else:
+                    board.members.add(user)
+                    messages.success(request, f'{username} añadido al tablero')
+            except User.DoesNotExist:
+                messages.error(request, f'El usuario "{username}" no existe')
         return redirect('board_members', pk=board.pk)
     members = board.members.all()
     return render(request, 'boards/board_members.html', {'board': board, 'members': members})
